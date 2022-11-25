@@ -1,0 +1,16 @@
+# Dockerized dev and test environment
+env/persistence/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+downloads/
+lib/
+lib64/
+parts/
+sdist/
+var/
+MANIFEST

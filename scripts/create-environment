@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")/../env"
+echo -e "\e[1;35m(Re)Creating environment:\e[0;1m $( pwd )\e[0m"
+sudo rm -fr persistence
+mkdir -p persistence/mariadb persistence/wordpress
+chmod -R 777 persistence/*
+docker compose -p wp-filemanager create

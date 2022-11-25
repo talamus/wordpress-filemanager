@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")/../env"
+echo -e "\e[1;35mStarting environment:\e[0;1m $( pwd )\e[0m"
+docker compose -p wp-filemanager up $@

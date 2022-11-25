@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")/../env"
+echo -e "\e[1;35mRemoving environment:\e[0;1m $( pwd )\e[0m"
+docker compose -p wp-filemanager down
+docker container rm wp-filemanager-mariadb-1 --force
+docker container rm wp-filemanager-wordpress-1 --force
