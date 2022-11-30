@@ -1,6 +1,7 @@
 x-variables:
-  - &MARIADB_DATABASE       wp_bitnami
-  - &MARIADB_USER           wp_bitnami
+  - &MARIADB_DATABASE       mariadb
+  - &MARIADB_USER           mariadb
+  - &MARIADB_PASSWORD       mariadb
   - &MARIADB_ROOT_PASSWORD  mariadb
   - &WORDPRESS_USERNAME     user
   - &WORDPRESS_PASSWORD     user
@@ -18,7 +19,7 @@ services:
     command: sleep infinity
 
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
+    network_mode: service:wordpress
 
     # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     # user: root
@@ -37,42 +38,43 @@ services:
       MYSQL_USER: mariadb
       MYSQL_PASSWORD: mariadb
 
-  mariadb:
-    image: docker.io/bitnami/mariadb:latest
-    # networks:
-    # - internal
-    # volumes:
-    # - ./persistence/mariadb:/bitnami/mariadb
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-      MARIADB_ROOT_USER: root
-      MARIADB_ROOT_PASSWORD: *MARIADB_ROOT_PASSWORD
-      MARIADB_DATABASE: *MARIADB_DATABASE
-      MARIADB_USER: *MARIADB_USER
-    healthcheck:
-      test: ["CMD", "mariadb", "-h", "mariadb", "-u", *MARIADB_USER, *MARIADB_DATABASE, "-e", "exit"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  # mariadb:
+  #   image: docker.io/bitnami/mariadb:latest
+  #   # networks:
+  #   # - internal
+  #   # volumes:
+  #   # - ./persistence/mariadb:/bitnami/mariadb
+  #   environment:
+  #     ALLOW_EMPTY_PASSWORD: "yes"
+  #     MARIADB_ROOT_USER: root
+  #     MARIADB_ROOT_PASSWORD: *MARIADB_ROOT_PASSWORD
+  #     MARIADB_DATABASE: *MARIADB_DATABASE
+  #     MARIADB_USER: *MARIADB_USER
+  #   healthcheck:
+  #     test: ["CMD", "mariadb", "-h", "mariadb", "-u", *MARIADB_USER, *MARIADB_DATABASE, "-e", "exit"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
 
   wordpress:
     image: docker.io/bitnami/wordpress-nginx:latest
-    # networks:
-    # - internal
-    # ports:
-    # - 80:8080
-    # - 443:8443
-    # volumes:
-    # - ./persistence/wordpress:/bitnami/wordpress
-    depends_on:
-      mariadb:
-        condition: service_healthy
+  #   # networks:
+  #   # - internal
+  #   # ports:
+  #   # - 80:8080
+  #   # - 443:8443
+  #   # volumes:
+  #   # - ./persistence/wordpress:/bitnami/wordpress
+  #   depends_on:
+  #     mariadb:
+  #       condition: service_healthy
     environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-      WORDPRESS_DATABASE_HOST: mariadb
-      WORDPRESS_DATABASE_PORT_NUMBER: 3306
+      ALLOW_EMPTY_PASSWORD: "no"
+      WORDPRESS_DATABASE_HOST: db
+  #     WORDPRESS_DATABASE_PORT_NUMBER: 3306
       WORDPRESS_DATABASE_NAME: *MARIADB_DATABASE
       WORDPRESS_DATABASE_USER: *MARIADB_USER
+      WORDPRESS_DATABASE_PASSWORD: *MARIADB_PASSWORD
       WORDPRESS_USERNAME: *WORDPRESS_USERNAME
       WORDPRESS_PASSWORD: *WORDPRESS_PASSWORD
 
