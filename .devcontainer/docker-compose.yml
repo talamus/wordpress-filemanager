@@ -1,6 +1,11 @@
-version: '3.8'
+x-variables:
+  - &MARIADB_DATABASE       wp_bitnami
+  - &MARIADB_USER           wp_bitnami
+  - &MARIADB_ROOT_PASSWORD  mariadb
+  - &WORDPRESS_USERNAME     user
+  - &WORDPRESS_PASSWORD     user
 
-services: 
+services:
   app:
     build:
       context: .
@@ -18,7 +23,7 @@ services:
     # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     # user: root
 
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
@@ -32,8 +37,54 @@ services:
       MYSQL_USER: mariadb
       MYSQL_PASSWORD: mariadb
 
-    # Add "forwardPorts": ["3306"] to **devcontainer.json** to forward MariaDB locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-  
+  mariadb:
+    image: docker.io/bitnami/mariadb:latest
+    # networks:
+    # - internal
+    # volumes:
+    # - ./persistence/mariadb:/bitnami/mariadb
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: *MARIADB_ROOT_PASSWORD
+      MARIADB_DATABASE: *MARIADB_DATABASE
+      MARIADB_USER: *MARIADB_USER
+    healthcheck:
+      test: ["CMD", "mariadb", "-h", "mariadb", "-u", *MARIADB_USER, *MARIADB_DATABASE, "-e", "exit"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  wordpress:
+    image: docker.io/bitnami/wordpress-nginx:latest
+    # networks:
+    # - internal
+    # ports:
+    # - 80:8080
+    # - 443:8443
+    # volumes:
+    # - ./persistence/wordpress:/bitnami/wordpress
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      WORDPRESS_DATABASE_HOST: mariadb
+      WORDPRESS_DATABASE_PORT_NUMBER: 3306
+      WORDPRESS_DATABASE_NAME: *MARIADB_DATABASE
+      WORDPRESS_DATABASE_USER: *MARIADB_USER
+      WORDPRESS_USERNAME: *WORDPRESS_USERNAME
+      WORDPRESS_PASSWORD: *WORDPRESS_PASSWORD
+
+  ubuntu:
+    image: docker.io/ubuntu:latest
+    command:
+    - sh
+    - -c
+    - |
+      apt -qq update
+      apt install mariadb-client telnet curl -y
+      sleep inf
+
 volumes:
   mariadb-data:
