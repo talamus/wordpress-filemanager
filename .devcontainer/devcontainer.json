@@ -3,7 +3,7 @@
 {
 	"name": "PHP & MariaDB (Community)",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"service": "dev",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -12,7 +12,7 @@
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
-		"vscode": {		
+		"vscode": {
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"xdebug.php-debug",

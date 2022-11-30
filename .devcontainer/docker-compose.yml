@@ -7,40 +7,22 @@ x-variables:
   - &WORDPRESS_PASSWORD     user
 
 services:
-  app:
+
+  dev:
     build:
       context: .
       dockerfile: Dockerfile
-
     depends_on:
       mariadb:
         condition: service_healthy
-
     volumes:
       - ../..:/workspaces:cached
-
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     network_mode: service:wordpress
-
     # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     # user: root
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
-  # db:
-  #   image: mariadb:10.4
-  #   restart: unless-stopped
-  #   volumes:
-  #     - mariadb-data:/var/lib/mysql
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: mariadb
-  #     MYSQL_DATABASE: mariadb
-  #     MYSQL_USER: mariadb
-  #     MYSQL_PASSWORD: mariadb
 
   mariadb:
     image: docker.io/bitnami/mariadb:latest
@@ -63,20 +45,20 @@ services:
 
   wordpress:
     image: docker.io/bitnami/wordpress-nginx:latest
-  #   # networks:
-  #   # - internal
-  #   # ports:
-  #   # - 80:8080
-  #   # - 443:8443
-  #   # volumes:
-  #   # - ./persistence/wordpress:/bitnami/wordpress
+    # networks:
+    # - internal
+    # ports:
+    # - 80:8080
+    # - 443:8443
+    # volumes:
+    # - ./persistence/wordpress:/bitnami/wordpress
     depends_on:
       mariadb:
         condition: service_healthy
     environment:
       ALLOW_EMPTY_PASSWORD: "no"
       WORDPRESS_DATABASE_HOST: mariadb
-  #     WORDPRESS_DATABASE_PORT_NUMBER: 3306
+      # WORDPRESS_DATABASE_PORT_NUMBER: 3306
       WORDPRESS_DATABASE_NAME: *MARIADB_DATABASE
       WORDPRESS_DATABASE_USER: *MARIADB_USER
       WORDPRESS_DATABASE_PASSWORD: *MARIADB_PASSWORD
