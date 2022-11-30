@@ -12,6 +12,10 @@ services:
       context: .
       dockerfile: Dockerfile
 
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
     volumes:
       - ../..:/workspaces:cached
 
@@ -27,34 +31,35 @@ services:
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-  db:
-    image: mariadb:10.4
-    restart: unless-stopped
-    volumes:
-      - mariadb-data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: mariadb
-      MYSQL_DATABASE: mariadb
-      MYSQL_USER: mariadb
-      MYSQL_PASSWORD: mariadb
-
-  # mariadb:
-  #   image: docker.io/bitnami/mariadb:latest
-  #   # networks:
-  #   # - internal
-  #   # volumes:
-  #   # - ./persistence/mariadb:/bitnami/mariadb
+  # db:
+  #   image: mariadb:10.4
+  #   restart: unless-stopped
+  #   volumes:
+  #     - mariadb-data:/var/lib/mysql
   #   environment:
-  #     ALLOW_EMPTY_PASSWORD: "yes"
-  #     MARIADB_ROOT_USER: root
-  #     MARIADB_ROOT_PASSWORD: *MARIADB_ROOT_PASSWORD
-  #     MARIADB_DATABASE: *MARIADB_DATABASE
-  #     MARIADB_USER: *MARIADB_USER
-  #   healthcheck:
-  #     test: ["CMD", "mariadb", "-h", "mariadb", "-u", *MARIADB_USER, *MARIADB_DATABASE, "-e", "exit"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
+  #     MYSQL_ROOT_PASSWORD: mariadb
+  #     MYSQL_DATABASE: mariadb
+  #     MYSQL_USER: mariadb
+  #     MYSQL_PASSWORD: mariadb
+
+  mariadb:
+    image: docker.io/bitnami/mariadb:latest
+    # networks:
+    # - internal
+    # volumes:
+    #   - mariadb-data:/bitnami/mariadb
+    environment:
+      ALLOW_EMPTY_PASSWORD: "no"
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: *MARIADB_ROOT_PASSWORD
+      MARIADB_DATABASE: *MARIADB_DATABASE
+      MARIADB_USER: *MARIADB_USER
+      MARIADB_PASSWORD: *MARIADB_PASSWORD
+    healthcheck:
+      test: ["CMD", "mariadb", "-h", "mariadb", "-u", *MARIADB_USER, "-pmariadb", *MARIADB_DATABASE, "-e", "exit"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   wordpress:
     image: docker.io/bitnami/wordpress-nginx:latest
@@ -65,12 +70,12 @@ services:
   #   # - 443:8443
   #   # volumes:
   #   # - ./persistence/wordpress:/bitnami/wordpress
-  #   depends_on:
-  #     mariadb:
-  #       condition: service_healthy
+    depends_on:
+      mariadb:
+        condition: service_healthy
     environment:
       ALLOW_EMPTY_PASSWORD: "no"
-      WORDPRESS_DATABASE_HOST: db
+      WORDPRESS_DATABASE_HOST: mariadb
   #     WORDPRESS_DATABASE_PORT_NUMBER: 3306
       WORDPRESS_DATABASE_NAME: *MARIADB_DATABASE
       WORDPRESS_DATABASE_USER: *MARIADB_USER
